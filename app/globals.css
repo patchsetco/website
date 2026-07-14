@@ -1,14 +1,14 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-    --color-deep: #101010;
-    --color-editor: #171717;
+  --color-deep: #101010;
+  --color-editor: #171717;
 
-    --color-text-primary: #d4d4d4;
-    --color-text-muted: #636363;
-    --color-text-bright: #f5f5f5;
+  --color-text-primary: #d4d4d4;
+  --color-text-muted: #636363;
+  --color-text-bright: #f5f5f5;
 }
 
 .root {
-    isolation: isolate;
+  isolation: isolate;
 }
