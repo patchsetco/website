@@ -7,7 +7,7 @@ const xLinkClassName =
 
 export default function BrandPage() {
   return (
-    <main className="relative min-h-screen bg-deep">
+    <main className="fixed inset-0 overflow-hidden bg-deep">
       <Image
         src={logo}
         alt="Patchset Company Logo"
