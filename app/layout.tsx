@@ -1,5 +1,43 @@
 import type { Metadata, Viewport } from 'next';
+import localFont from 'next/font/local';
 import './globals.css';
+
+const hyperlegibleSans = localFont({
+  src: [
+    {
+      path: './fonts/HyperlegibleSans-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: './fonts/HyperlegibleSans-Italic.woff2',
+      weight: '400',
+      style: 'italic',
+    },
+    {
+      path: './fonts/HyperlegibleSans-Medium.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: './fonts/HyperlegibleSans-MediumItalic.woff2',
+      weight: '500',
+      style: 'italic',
+    },
+    {
+      path: './fonts/HyperlegibleSans-Bold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: './fonts/HyperlegibleSans-BoldItalic.woff2',
+      weight: '700',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-hyperlegible-sans',
+  display: 'swap',
+});
 
 const siteName = 'Patchset Company';
 const description = 'The official site of Patchset Company, a software company.';
@@ -56,8 +94,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={hyperlegibleSans.variable}>
+      <body className="font-sans antialiased">
         <div className="root">{children}</div>
       </body>
     </html>

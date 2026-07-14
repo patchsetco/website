@@ -1,6 +1,10 @@
 @import 'tailwindcss';
 
 @theme {
+  --font-sans:
+    var(--font-hyperlegible-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji';
+
   --color-deep: #101010;
   --color-editor: #171717;
 
