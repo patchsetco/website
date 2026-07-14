@@ -22,6 +22,9 @@ export default function BrandPage() {
           className={xLinkClassName}
           target="_blank"
           rel="noopener noreferrer"
+          data-cuelume-hover="tick"
+          data-cuelume-press=""
+          data-cuelume-release=""
         >
           @PatchsetCompany
         </Link>
@@ -31,6 +34,9 @@ export default function BrandPage() {
           className={xLinkClassName}
           target="_blank"
           rel="noopener noreferrer"
+          data-cuelume-hover="tick"
+          data-cuelume-press=""
+          data-cuelume-release=""
         >
           @liammmcauliffe
         </Link>

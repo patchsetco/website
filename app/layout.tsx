@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
+import { CuelumeBind } from './cuelume-bind';
 import './globals.css';
 
 const hyperlegibleSans = localFont({
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={hyperlegibleSans.variable}>
       <body className="font-sans antialiased">
+        <CuelumeBind />
         <div className="root">{children}</div>
       </body>
     </html>
