@@ -1,46 +1,11 @@
-import Image from 'next/image';
-import logo from '../public/logo.svg';
-import { Link } from './link';
-
-const xLinkClassName =
-  'text-text-muted transition-colors hover:text-text-bright focus-visible:outline-none focus-visible:text-text-bright';
+import { CreditLine } from './credit-line';
+import { SessionAmbient } from './session-ambient';
 
 export default function BrandPage() {
   return (
-    <main className="fixed inset-0 overflow-hidden bg-deep">
-      <Image
-        src={logo}
-        alt="Patchset Company Logo"
-        className="absolute top-1/2 left-1/2 h-80 w-auto -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none"
-        draggable={false}
-        priority
-      />
-      {/* margin-top: 50% of Image height */}
-      <p className="absolute top-1/2 left-1/2 mt-40 -translate-x-1/2 text-sm font-bold whitespace-nowrap">
-        <Link
-          href="https://x.com/PatchsetCompany"
-          className={xLinkClassName}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-cuelume-hover="tick"
-          data-cuelume-press=""
-          data-cuelume-release=""
-        >
-          @PatchsetCompany
-        </Link>
-        <span className="text-text-muted"> by </span>
-        <Link
-          href="https://x.com/liammmcauliffe"
-          className={xLinkClassName}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-cuelume-hover="tick"
-          data-cuelume-press=""
-          data-cuelume-release=""
-        >
-          @liammmcauliffe
-        </Link>
-      </p>
+    <main className="fixed inset-0 overflow-hidden bg-deep select-none">
+      <SessionAmbient />
+      <CreditLine />
     </main>
   );
 }
