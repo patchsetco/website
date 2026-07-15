@@ -8,8 +8,8 @@ type LinkProps = ComponentProps<'a'> & {
 };
 
 const brandLinkClassName =
-  'brand-link inline-flex min-h-11 items-center rounded-sm ' +
-  'text-text-muted hover:text-text-bright ' +
+  'brand-link inline-flex min-h-11 items-center justify-center rounded-sm ' +
+  'text-text-muted ' +
   'transition-[color,transform] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] ' +
   'active:scale-[0.97] ' +
   'focus-visible:text-text-bright focus-visible:outline focus-visible:outline-1 ' +

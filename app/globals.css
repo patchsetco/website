@@ -23,6 +23,7 @@
 
 html {
   height: 100dvh;
+  height: -webkit-fill-available;
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
@@ -30,13 +31,15 @@ html {
 
 body {
   height: 100dvh;
+  height: -webkit-fill-available;
   margin: 0;
   overflow: hidden;
   overscroll-behavior: none;
-  touch-action: manipulation;
+  touch-action: none;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .root {
@@ -44,8 +47,91 @@ body {
   height: 100%;
 }
 
+.credit-scrim {
+  display: none;
+}
+
+.credit-line {
+  position: absolute;
+  z-index: 10;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0;
+  transform: translate(-50%, calc(-50% + 0.1rem));
+  font-size: 0.875rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.credit-by-mobile {
+  display: none;
+}
+
+.credit-by-desktop {
+  display: inline;
+}
+
 @media (hover: none), (pointer: coarse) {
+  .credit-scrim {
+    display: block;
+    pointer-events: none;
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 9;
+    height: min(42dvh, 18rem);
+    background: linear-gradient(
+      to top,
+      var(--color-deep) 0%,
+      var(--color-deep) 15%,
+      color-mix(in srgb, var(--color-deep) 70%, transparent) 45%,
+      transparent 100%
+    );
+  }
+
+  .credit-line {
+    top: auto;
+    bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    width: 100%;
+    max-width: min(100%, 22rem);
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding-inline: 1.25rem;
+    transform: translateX(-50%);
+    font-size: 0.9375rem;
+    letter-spacing: -0.01em;
+    white-space: normal;
+  }
+
+  .credit-link {
+    min-height: 3rem;
+    padding-inline: 0.75rem;
+  }
+
+  .credit-by-mobile {
+    display: inline;
+  }
+
+  .credit-by-desktop {
+    display: none;
+  }
+
   a.brand-link:hover {
     color: var(--color-text-muted);
+  }
+
+  a.brand-link:active {
+    color: var(--color-text-bright);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.brand-link:hover {
+    color: var(--color-text-bright);
   }
 }

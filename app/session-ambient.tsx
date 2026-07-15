@@ -48,12 +48,20 @@ export function SessionAmbient() {
     if (!surface) return;
     const ctx: CanvasRenderingContext2D = surface;
 
-    const cell = 18;
+    // touch form
+    const formMq = matchMedia('(hover: none), (pointer: coarse)');
+    let coarse = formMq.matches;
+    let cell = coarse ? 22 : 18;
+    let trailR = coarse ? 30 : 16.2;
+    let trailLife = coarse ? 680 : 520;
+    let pullR = coarse ? 260 : 200;
+    let pullForce = coarse ? 15 : 12;
+    let phR = coarse ? 180 : 150;
+    let glyphPx = 1000;
 
     // skip bloom on gecko
     const gecko = isGecko();
     const useBloom = !gecko;
-    const bloomRes = 0.45;
 
     let bloomEl: HTMLCanvasElement | null = null;
     let bloom: CanvasRenderingContext2D | null = null;
@@ -96,6 +104,16 @@ export function SessionAmbient() {
     let isTouch = false;
     let dragging = false;
     let mouseSeen = false;
+
+    const applyForm = () => {
+      coarse = formMq.matches;
+      cell = coarse ? 22 : 18;
+      trailR = coarse ? 30 : 16.2;
+      trailLife = coarse ? 680 : 520;
+      pullR = coarse ? 260 : 200;
+      pullForce = coarse ? 15 : 12;
+      phR = coarse ? 180 : 150;
+    };
 
     const trail: { x: number; y: number; t: number }[] = [];
     let letters: { el: HTMLElement; x: number; y: number; link: boolean }[] = [];
@@ -153,11 +171,14 @@ export function SessionAmbient() {
 
     const sparsityAt = (x: number, y: number) => {
       const cx = width / 2;
-      const cy = height / 2;
+      // mobile: bias density toward upper field
+      const cy = coarse ? height * 0.42 : height / 2;
       const maxR = Math.hypot(Math.max(cx, width - cx), Math.max(cy, height - cy)) || 1;
       const t = Math.min(1, Math.hypot(x - cx, y - cy) / maxR);
       const u = t * t * (3 - 2 * t);
-      return 0.02 + (0.58 - 0.02) * u;
+      const lo = coarse ? 0.03 : 0.02;
+      const hi = coarse ? 0.62 : 0.58;
+      return lo + (hi - lo) * u;
     };
 
     const cornerDist = (x: number, y: number) =>
@@ -180,10 +201,13 @@ export function SessionAmbient() {
         forceMask = null;
         return;
       }
-      const sc = 1000 / Math.max(BRAND_GLYPH.viewW, BRAND_GLYPH.viewH);
+      glyphPx = coarse ? Math.min(width, height) * 0.62 : 1000;
+      const sc = glyphPx / Math.max(BRAND_GLYPH.viewW, BRAND_GLYPH.viewH);
+      const ox = width / 2;
+      const oy = coarse ? height * 0.4 : height / 2;
       g.clearRect(0, 0, maskW, maskH);
       g.fillStyle = '#fff';
-      g.translate(width / 2, height / 2);
+      g.translate(ox, oy);
       g.scale(sc, sc);
       g.translate(-BRAND_GLYPH.viewW / 2, -BRAND_GLYPH.viewH / 2);
       g.fill(new Path2D(BRAND_GLYPH.d));
@@ -227,7 +251,7 @@ export function SessionAmbient() {
     };
 
     const sizeCanvas = () => {
-      dpr = Math.min(devicePixelRatio || 1, 2);
+      dpr = Math.min(devicePixelRatio || 1, coarse ? 1.75 : 2);
       width = innerWidth;
       height = innerHeight;
       el.width = (width * dpr) | 0;
@@ -235,14 +259,15 @@ export function SessionAmbient() {
       el.style.width = `${width}px`;
       el.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const br = coarse ? 0.38 : 0.45;
       if (bloomEl && bloom) {
-        bloomEl.width = Math.max(1, (width * bloomRes) | 0);
-        bloomEl.height = Math.max(1, (height * bloomRes) | 0);
-        bloom.setTransform(bloomRes, 0, 0, bloomRes, 0, 0);
+        bloomEl.width = Math.max(1, (width * br) | 0);
+        bloomEl.height = Math.max(1, (height * br) | 0);
+        bloom.setTransform(br, 0, 0, br, 0, 0);
       }
       if (!mouseSeen && !isTouch) {
         ptrX = width / 2;
-        ptrY = height / 2;
+        ptrY = coarse ? height * 0.4 : height / 2;
       }
     };
 
@@ -282,30 +307,31 @@ export function SessionAmbient() {
     };
 
     const pruneTrail = (now: number) => {
-      while (trail.length && now - trail[0]!.t > 520) trail.shift();
+      while (trail.length && now - trail[0]!.t > trailLife) trail.shift();
     };
 
     const pushTrail = (x: number, y: number, now: number) => {
       const last = trail[trail.length - 1];
-      if (last && Math.hypot(x - last.x, y - last.y) < 5) {
+      const minStep = coarse ? 8 : 5;
+      if (last && Math.hypot(x - last.x, y - last.y) < minStep) {
         last.x = x;
         last.y = y;
         last.t = now;
         return;
       }
       trail.push({ x, y, t: now });
-      while (trail.length > 48) trail.shift();
+      while (trail.length > (coarse ? 36 : 48)) trail.shift();
     };
 
     const trailAt = (x: number, y: number, now: number) => {
       let peak = 0;
       for (const s of trail) {
         const age = now - s.t;
-        if (age < 0 || age > 520) continue;
+        if (age < 0 || age > trailLife) continue;
         const d = Math.hypot(x - s.x, y - s.y);
-        if (d >= 16.2) continue;
-        const radial = 1 - d / 16.2;
-        const fade = 1 - age / 520;
+        if (d >= trailR) continue;
+        const radial = 1 - d / trailR;
+        const fade = 1 - age / trailLife;
         peak = Math.max(peak, radial * radial * fade * fade);
       }
       return peak;
@@ -314,6 +340,7 @@ export function SessionAmbient() {
     const needsFrame = (now: number) => {
       if (hidden || reduced) return false;
       if (preReveal()) {
+        if (coarse) return !reduced;
         pruneTrail(now);
         if (trail.length) return true;
         return (mouseSeen || isTouch) && (now - lastPtr < 450 || dragging);
@@ -518,6 +545,38 @@ export function SessionAmbient() {
       }
     };
 
+    // mobile: soft radial breath
+    const inviteField = (now: number) => {
+      if (reduced || !coarse) return;
+      const cx = width / 2;
+      const cy = height * 0.4;
+      const maxR = Math.hypot(Math.max(cx, width - cx), Math.max(cy, height - cy)) || 1;
+      const phase = now * 0.00085;
+      const breath = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(phase));
+      for (let i = 0; i < restX.length; i++) {
+        const x = restX[i]!;
+        const y = restY[i]!;
+        const d = Math.hypot(x - cx, y - cy);
+        const ring = 0.5 + 0.5 * Math.sin(phase * 1.15 - (d / maxR) * 2.4);
+        const s = salt[i]!;
+        const a = (0.025 + 0.09 * breath * ring) * (0.55 + s * 0.55);
+        if (a < 0.028) continue;
+        tint(s, ring * 0.2 * breath);
+        glyph(
+          ctx,
+          shapeIdx[i]!,
+          x,
+          y,
+          9 * (0.85 + s * 0.4),
+          a,
+          0.96 + ring * 0.06 * breath,
+          color.r,
+          color.g,
+          color.b
+        );
+      }
+    };
+
     const pruneRipples = (now: number) => {
       for (let i = ripples.length - 1; i >= 0; i--) {
         if (now - ripples[i]!.start >= rippleLife) ripples.splice(i, 1);
@@ -545,6 +604,7 @@ export function SessionAmbient() {
 
       if (preReveal()) {
         ctx.clearRect(0, 0, width, height);
+        inviteField(now);
         hoverTrail(now);
         paintBrand(now);
         if (needsFrame(now)) raf = requestAnimationFrame(step);
@@ -575,7 +635,7 @@ export function SessionAmbient() {
       const n = restX.length;
       const dt = lastStep > 0 ? Math.min(48, now - lastStep) : 16;
       lastStep = now;
-      const phDecay = Math.exp(-dt / 1800);
+      const phDecay = Math.exp(-dt / (coarse ? 2400 : 1800));
       const dtSec = dt / 1000;
 
       // bloom only while glow active
@@ -593,8 +653,8 @@ export function SessionAmbient() {
           const dx = ptrX - x;
           const dy = ptrY - y;
           const dist = Math.hypot(dx, dy) || 1;
-          if (dist < 200) {
-            const f = (1 - dist / 200) ** 2 * 12;
+          if (dist < pullR) {
+            const f = (1 - dist / pullR) ** 2 * pullForce;
             tx -= (dx / dist) * f * 0.55;
             ty -= (dy / dist) * f * 0.55;
             tx += (-dy / dist) * f * 0.25;
@@ -602,8 +662,11 @@ export function SessionAmbient() {
           }
         }
 
-        velX[i] = (velX[i]! + (tx - posX[i]!) * 0.1) * 0.82;
-        velY[i] = (velY[i]! + (ty - posY[i]!) * 0.1) * 0.82;
+        // mobile: slightly heavier spring so finger drag feels glued
+        const spring = coarse ? 0.12 : 0.1;
+        const damp = coarse ? 0.8 : 0.82;
+        velX[i] = (velX[i]! + (tx - posX[i]!) * spring) * damp;
+        velY[i] = (velY[i]! + (ty - posY[i]!) * spring) * damp;
         posX[i]! += velX[i]!;
         posY[i]! += velY[i]!;
 
@@ -611,9 +674,9 @@ export function SessionAmbient() {
         if (ph < 0.0008) ph = 0;
         if (pull) {
           const pd = Math.hypot(ptrX - x, ptrY - y);
-          if (pd < 150) {
-            const u = 1 - pd / 150;
-            ph = Math.min(1, ph + u * u * 3.2 * dtSec);
+          if (pd < phR) {
+            const u = 1 - pd / phR;
+            ph = Math.min(1, ph + u * u * (coarse ? 3.8 : 3.2) * dtSec);
           }
         }
 
@@ -664,6 +727,12 @@ export function SessionAmbient() {
       trail.length = 0;
       setEnabled(true);
       play('bloom');
+      // light haptic on first bloom
+      if (coarse && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try {
+          navigator.vibrate(12);
+        } catch {}
+      }
       if (reduced) {
         introDone = true;
         staticField();
@@ -757,9 +826,18 @@ export function SessionAmbient() {
     const mq = matchMedia('(prefers-reduced-motion: reduce)');
     mq.addEventListener('change', onMotion);
 
+    const onForm = () => {
+      applyForm();
+      sizeCanvas();
+      rebuild();
+      kick();
+    };
+    formMq.addEventListener('change', onForm);
+
     sizeCanvas();
     rebuild();
     paintBrand(performance.now());
+    if (coarse && !reduced) kick();
 
     const onResize = () => {
       sizeCanvas();
@@ -789,6 +867,7 @@ export function SessionAmbient() {
       removeEventListener('pointercancel', onUp, true);
       document.removeEventListener('visibilitychange', onVis);
       mq.removeEventListener('change', onMotion);
+      formMq.removeEventListener('change', onForm);
       setEnabled(true);
       for (const { el: n } of letters) {
         n.style.willChange = 'auto';

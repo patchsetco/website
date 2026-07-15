@@ -28,39 +28,47 @@ const creditLinkClass = '!px-0';
 
 export function CreditLine() {
   return (
-    <p
-      data-brand-credit
-      className="absolute top-1/2 left-1/2 z-10 text-sm font-bold whitespace-nowrap select-none"
-      style={{ transform: 'translate(-50%, calc(-50% + 0.1rem))' }}
-      aria-label="@PatchsetCompany by @liammmcauliffe"
-    >
-      <Link
-        href="https://x.com/PatchsetCompany"
-        className={creditLinkClass}
-        target="_blank"
-        rel="noopener noreferrer"
-        data-cuelume-hover="tick"
-        data-cuelume-press=""
-        data-cuelume-release=""
-        aria-label="@PatchsetCompany"
+    <>
+      <div aria-hidden className="credit-scrim" />
+
+      <p
+        data-brand-credit
+        className="credit-line font-bold select-none"
+        aria-label="@PatchsetCompany by @liammmcauliffe"
       >
-        <Letters text="@PatchsetCompany" link />
-      </Link>
-      <span className="text-text-muted" aria-hidden>
-        <Letters text=" by " className="text-text-muted" />
-      </span>
-      <Link
-        href="https://x.com/liammmcauliffe"
-        className={creditLinkClass}
-        target="_blank"
-        rel="noopener noreferrer"
-        data-cuelume-hover="tick"
-        data-cuelume-press=""
-        data-cuelume-release=""
-        aria-label="@liammmcauliffe"
-      >
-        <Letters text="@liammmcauliffe" link />
-      </Link>
-    </p>
+        <Link
+          href="https://x.com/PatchsetCompany"
+          className={`${creditLinkClass} credit-link`}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-cuelume-hover="tick"
+          data-cuelume-press=""
+          data-cuelume-release=""
+          aria-label="@PatchsetCompany"
+        >
+          <Letters text="@PatchsetCompany" link />
+        </Link>
+
+        <span className="credit-by-mobile text-text-muted" aria-hidden>
+          <Letters text="by" className="text-text-muted text-[0.8125rem] font-medium" />
+        </span>
+        <span className="credit-by-desktop text-text-muted" aria-hidden>
+          <Letters text=" by " className="text-text-muted" />
+        </span>
+
+        <Link
+          href="https://x.com/liammmcauliffe"
+          className={`${creditLinkClass} credit-link`}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-cuelume-hover="tick"
+          data-cuelume-press=""
+          data-cuelume-release=""
+          aria-label="@liammmcauliffe"
+        >
+          <Letters text="@liammmcauliffe" link />
+        </Link>
+      </p>
+    </>
   );
 }
